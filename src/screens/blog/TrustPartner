@@ -1,0 +1,35 @@
+<!-- {/* ── Trusted Partner ──────────────────────────────────────── */}
+        <div className="s-py-50-100" data-aos="fade-up">
+          <div className="container-fluid">
+            <div className="max-w-xl mx-auto mb-8 md:mb-12 text-center" data-aos="fade-up" data-aos-delay="100">
+              <div>
+                <img
+                  src={trust}
+                  className="mx-auto w-14 sm:w-24"
+                  alt=""
+                  style={{ filter: 'drop-shadow(0 4px 12px rgba(37,99,235,0.25))' }}
+                />
+              </div>
+              {/* CTA gradient rule (blue→green for this section) */}
+              <div style={{ width: 48, height: 3, background: CTA_GRAD, margin: '20px auto 16px', borderRadius: 2 }} />
+              <h3
+                className="leading-none text-2xl md:text-3xl"
+                style={{
+                  backgroundImage: CTA_GRAD,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                }}
+              >
+                Trusted Partner
+              </h3>
+              <p className="mt-3" style={{ fontSize: 15, color: '#6B7280', lineHeight: 1.7 }}>
+                Count on our trusted partnerships to deliver excellence. Collaborating with industry leaders
+                ensures top-quality products and services for your satisfaction.
+              </p>
+            </div>
+            <div data-aos="fade-up" data-aos-delay="200">
+              <PartnerOne />
+            </div>
+          </div>
+        </div> -->

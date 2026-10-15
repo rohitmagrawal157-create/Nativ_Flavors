@@ -1,0 +1,43 @@
+{
+  "name": "furnixar",
+  "version": "1.3.0",
+  "private": true,
+  "description": "Infinity HomeDecor — Next.js storefront",
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
+    "start": "next start",
+    "lint": "eslint ."
+  },
+  "dependencies": {
+    "aos": "^2.3.4",
+    "axios": "^1.14.0",
+    "framer-motion": "^12.38.0",
+    "multi-range-slider-react": "^2.0.7",
+    "next": "^16.4.1",
+    "prop-types": "^15.8.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "react-icons": "^5.6.0",
+    "react-loading-indicators": "^1.0.1",
+    "swiper": "^12.1.3",
+    "tailwindcss": "^4.1.18",
+    "tiny-slider-react": "^0.5.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/aos": "^3.0.7",
+    "@types/node": "26.6.5",
+    "@types/react": "^19.2.10",
+    "@types/react-dom": "^19.2.3",
+    "@types/tiny-slider-react": "^0.3.8",
+    "eslint": "^9.39.2",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "globals": "^17.3.0",
+    "postcss": "^8.5.30",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.54.0"
+  }
+}

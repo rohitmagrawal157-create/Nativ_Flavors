@@ -1,0 +1,185 @@
+/* Native Flavors design system.
+   60% milk, 30% forest, 10% category accent.
+   Tokens also live in @theme inside src/assets/css/style.css. */
+
+:root {
+  --color-forest: #2F4A3A;
+  --color-turmeric: #C7922E;
+  --color-stone: #6E736F;
+  --color-milk: #F6F3EE;
+  --color-husk: #5A4634;
+  --color-ink: #4A4F4B;
+  --color-ghee: #C7922E;
+  --color-atta: #5A4634;
+  --color-jaggery: #8B6A3E;
+  --color-snacks: #6E736F;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  --section-pad: 80px;
+  --content-max: 1100px;
+  --button-radius: 12px;
+  --motion: 0.4s ease;
+}
+
+html {
+  width: 100%;
+  overflow-x: clip;
+  background-color: var(--color-milk);
+}
+
+body {
+  width: 100%;
+  overflow-x: clip;
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-milk);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+p,
+li,
+label,
+input,
+textarea,
+select,
+button,
+nav,
+a {
+  font-family: var(--font-sans);
+}
+
+p {
+  color: var(--color-ink);
+  font-size: max(16px, 1em);
+  line-height: 1.7;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-serif);
+  color: var(--color-forest);
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+section {
+  padding-top: var(--section-pad);
+  padding-bottom: var(--section-pad);
+}
+
+.nf-hero {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.swiper,
+.swiper-wrapper,
+.swiper-slide {
+  max-width: none;
+}
+
+.container {
+  width: 100%;
+  max-width: var(--content-max);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.btn,
+a.btn,
+button[type="submit"] {
+  font-family: var(--font-sans);
+  border-radius: var(--button-radius);
+  background-color: var(--color-forest);
+  color: var(--color-milk);
+  transition: opacity var(--motion);
+}
+
+@media (max-width: 767px) {
+  .btn,
+  a.btn,
+  button[type="submit"] {
+    min-height: 44px;
+  }
+}
+
+.btn:hover,
+a.btn:hover,
+button[type="submit"]:hover {
+  opacity: 0.92;
+}
+
+svg.lucide,
+.hcn svg,
+button svg,
+a svg {
+  stroke-width: 1.75;
+}
+
+[data-aos] {
+  animation-name: nf-fade-in !important;
+  animation-duration: 0.4s !important;
+  animation-timing-function: ease !important;
+}
+
+.animate-pulse,
+.blink {
+  animation: nf-fade-in 0.4s ease both !important;
+}
+
+@keyframes nf-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes nf-from-left {
+  from { opacity: 0; transform: translate3d(-28px, 0, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes nf-from-right {
+  from { opacity: 0; transform: translate3d(28px, 0, 0); }
+  to { opacity: 1; transform: none; }
+}
+
+.nf-arm:not(.nf-play) .nf-enter-copy,
+.nf-arm:not(.nf-play) .nf-enter-photo {
+  opacity: 0;
+}
+
+.nf-play .nf-enter-copy {
+  animation: nf-from-left 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.nf-play .nf-enter-photo {
+  animation: nf-from-right 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nf-arm:not(.nf-play) .nf-enter-copy,
+  .nf-arm:not(.nf-play) .nf-enter-photo {
+    opacity: 1;
+  }
+
+  .nf-play .nf-enter-copy,
+  .nf-play .nf-enter-photo {
+    animation: none;
+  }
+}
+
+#root {
+  width: 100%;
+  overflow-x: clip;
+}
+
+* {
+  max-width: 100vw;
+  box-sizing: border-box;
+}
