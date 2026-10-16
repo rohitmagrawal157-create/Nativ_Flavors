@@ -111,7 +111,7 @@ function SortMenu({ value, onChange }: { value: SortId; onChange: (id: SortId) =
           <path d="M4 7h11M4 12h8M4 17h5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
           <path d="M17 6v12M14 15l3 3 3-3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
-        Sort
+        Sort by
       </button>
       {open && (
         <ul className="nf-sort-menu" role="listbox" aria-label="Sort products">
@@ -250,7 +250,7 @@ export default function CategoryPage() {
   const [retryKey,   setRetryKey]   = useState(0);
   const [page,       setPage]       = useState(1);
   const [sort,       setSort]       = useState<SortId>('featured');
-  const [gridCols,   setGridCols]   = useState<2|3>(3);
+  const [gridCols,   setGridCols]   = useState<2|4>(4);
   const [minValue,   setMinValue]   = useState(0);
   const [maxValue,   setMaxValue]   = useState(500);
   const [draftMin,   setDraftMin]   = useState(0);
@@ -528,21 +528,25 @@ export default function CategoryPage() {
 
             <div className="nf-catalog-main" data-aos="fade-up" data-aos-delay="200">
               <div className="nf-catalog-bar">
-                <p className="nf-result-count">
-                  <strong>{filtered.length}</strong> {filtered.length === 1 ? 'product' : 'products'}
-                </p>
-                <SortMenu value={sort} onChange={(next) => { setSort(next); setPage(1); }} />
-                <div className="nf-grid-toggle">
-                  <button type="button" aria-label="Three columns" aria-pressed={gridCols === 3} onClick={() => setGridCols(3)}>
-                    <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor">
-                      <rect x="0" y="0" width="4" height="4" rx="0.5" /><rect x="6" y="0" width="4" height="4" rx="0.5" /><rect x="12" y="0" width="4" height="4" rx="0.5" />
-                      <rect x="0" y="6" width="4" height="4" rx="0.5" /><rect x="6" y="6" width="4" height="4" rx="0.5" /><rect x="12" y="6" width="4" height="4" rx="0.5" />
-                      <rect x="0" y="12" width="4" height="4" rx="0.5" /><rect x="6" y="12" width="4" height="4" rx="0.5" /><rect x="12" y="12" width="4" height="4" rx="0.5" />
+                <div className="nf-catalog-tools">
+                  <SortMenu value={sort} onChange={(next) => { setSort(next); setPage(1); }} />
+                  <p className="nf-result-count">
+                    <strong>{filtered.length}</strong> {filtered.length === 1 ? 'product' : 'products'}
+                  </p>
+                </div>
+                <div className="nf-grid-toggle" role="group" aria-label="Product layout">
+                  <button type="button" aria-label="Four products in a row" aria-pressed={gridCols === 4} onClick={() => setGridCols(4)}>
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true">
+                      <rect x="1" y="1" width="7" height="7" rx="1.2" />
+                      <rect x="10" y="1" width="7" height="7" rx="1.2" />
+                      <rect x="1" y="10" width="7" height="7" rx="1.2" />
+                      <rect x="10" y="10" width="7" height="7" rx="1.2" />
                     </svg>
                   </button>
-                  <button type="button" aria-label="Two columns" aria-pressed={gridCols === 2} onClick={() => setGridCols(2)}>
-                    <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor">
-                      <rect x="0" y="0" width="7" height="16" rx="1" /><rect x="9" y="0" width="7" height="16" rx="1" />
+                  <button type="button" aria-label="Two products in a row" aria-pressed={gridCols === 2} onClick={() => setGridCols(2)}>
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor" aria-hidden="true">
+                      <rect x="1" y="1" width="7" height="16" rx="1.2" />
+                      <rect x="10" y="1" width="7" height="16" rx="1.2" />
                     </svg>
                   </button>
                 </div>
@@ -554,7 +558,7 @@ export default function CategoryPage() {
                 <EmptyState onReset={handleReset} />
               ) : (
                 <>
-                  <div className={`grid gap-[6px] ${gridCols===2 ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4'}`}>
+                  <div className={gridCols === 4 ? 'nf-grid nf-grid-4' : 'nf-grid nf-grid-2'}>
                     {paginated.map(item => <LayoutOne item={item} key={item.id} />)}
                   </div>
                   {totalPages > 1 && (
@@ -754,46 +758,56 @@ export default function CategoryPage() {
           font-size: 14px;
         }
         .nf-catalog-bar {
-          display: grid;
-          grid-template-columns: 1fr auto 1fr;
+          display: flex;
           align-items: center;
-          gap: 12px;
+          justify-content: space-between;
+          gap: 16px;
           margin-bottom: 22px;
         }
+        .nf-catalog-tools { display: flex; align-items: center; gap: 16px; min-width: 0; }
         .nf-result-count {
           margin: 0;
           color: #6E736F;
           font-family: Poppins, sans-serif;
-          font-size: 13px;
+          font-size: 14px;
+          letter-spacing: 0.01em;
         }
         .nf-result-count strong { color: #2F4A3A; font-weight: 650; }
-        .nf-grid-toggle { display: flex; justify-content: flex-end; gap: 6px; }
+        .nf-grid { display: grid; }
+        .nf-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+        .nf-grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        .nf-grid-toggle { display: flex; justify-content: flex-end; gap: 8px; flex: 0 0 auto; }
         .nf-grid-toggle button {
-          width: 36px;
-          height: 36px;
-          border: 1px solid #E7E2DA;
-          border-radius: 8px;
+          width: 42px;
+          height: 42px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid #D9D3C8;
+          border-radius: 10px;
           background: #fff;
-          color: #6E736F;
+          color: #2F4A3A;
           cursor: pointer;
         }
         .nf-grid-toggle button[aria-pressed="true"] { background: #2F4A3A; color: #F6F3EE; border-color: #2F4A3A; }
-        .nf-sort { position: relative; justify-self: center; }
+        .nf-grid-toggle button:focus-visible { outline: 3px solid #C7922E; outline-offset: 2px; }
+        .nf-sort { position: relative; }
         .nf-sort-btn {
           display: inline-flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
-          min-width: 148px;
-          min-height: 46px;
-          padding: 0 18px;
+          min-width: 132px;
+          min-height: 44px;
+          padding: 0 16px;
           border: 1px solid #C7922E;
-          border-radius: 4px;
+          border-radius: 8px;
           background: #fff;
           color: #8A6A24;
           font-family: Poppins, sans-serif;
-          font-size: 18px;
+          font-size: 15px;
           font-weight: 600;
+          letter-spacing: 0.01em;
           cursor: pointer;
         }
         .nf-sort-btn:focus-visible, .nf-sort-menu button:focus-visible { outline: 3px solid #C7922E; outline-offset: 2px; }
@@ -801,28 +815,27 @@ export default function CategoryPage() {
           position: absolute;
           z-index: 30;
           top: calc(100% + 10px);
-          left: 50%;
+          left: 0;
           width: min(280px, 78vw);
           margin: 0;
-          padding: 18px 8px;
+          padding: 10px 6px;
           list-style: none;
-          transform: translateX(-50%);
           border: 1px solid #E7E2DA;
-          border-radius: 8px;
+          border-radius: 12px;
           background: #fff;
           box-shadow: 0 16px 40px rgba(47, 74, 58, 0.12);
         }
         .nf-sort-menu::before {
           content: "";
           position: absolute;
-          top: -7px;
-          left: 50%;
+          top: -6px;
+          left: 28px;
           width: 12px;
           height: 12px;
           background: #fff;
           border-left: 1px solid #E7E2DA;
           border-top: 1px solid #E7E2DA;
-          transform: translateX(-50%) rotate(45deg);
+          transform: rotate(45deg);
         }
         .nf-sort-menu button {
           display: flex;
@@ -831,21 +844,28 @@ export default function CategoryPage() {
           gap: 12px;
           width: 100%;
           min-height: 40px;
-          padding: 6px 16px;
+          padding: 8px 14px;
           border: 0;
+          border-radius: 8px;
           background: transparent;
-          color: #1C1C1C;
+          color: #243028;
           font-family: Poppins, sans-serif;
-          font-size: 16px;
-          font-weight: 550;
+          font-size: 15px;
+          font-weight: 500;
+          letter-spacing: 0.01em;
+          line-height: 1.35;
           text-align: left;
           cursor: pointer;
         }
-        .nf-sort-menu button:hover, .nf-sort-menu button[aria-selected="true"] { color: #2F4A3A; }
+        .nf-sort-menu button:hover { background: #F6F3EE; }
+        .nf-sort-menu button[aria-selected="true"] { color: #2F4A3A; font-weight: 650; }
+        @media (max-width: 1100px) {
+          .nf-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
         @media (max-width: 760px) {
           .nf-catalog { grid-template-columns: 1fr; }
-          .nf-catalog-bar { grid-template-columns: 1fr; justify-items: center; }
-          .nf-result-count, .nf-grid-toggle { justify-self: center; }
+          .nf-catalog-bar { align-items: flex-start; }
+          .nf-catalog-tools { flex-direction: column; align-items: flex-start; }
         }
       `}</style>
       <FooterOne />
