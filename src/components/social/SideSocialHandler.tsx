@@ -255,7 +255,7 @@ const STYLES = `
      Always collapsed — icon tab on edge, tap = immediate action
   ───────────────────────────────────────────────────────────────── */
   @media (max-width: 640px) {
-    .ssh-widget { bottom: 82px; gap: 10px; }
+    .ssh-widget { right: 10px; bottom: 16px; gap: 10px; }
 
     .ssh-btn,
     .ssh-btn.is-open {

@@ -278,17 +278,24 @@ const STYLES = `
   @keyframes hcnSpin { to { transform: rotate(360deg); } }
 
   /* ── Mobile ─────────────────────────────────────────────────────────── */
-  .hcn-mob-header { transform: translateY(0); transition: transform .3s cubic-bezier(.4, 0, .2, 1); will-change: transform; }
-  .hcn-mob-header.is-hidden { transform: translateY(-100%); }
+  .hcn-mob-header.is-hidden { max-height: 0; overflow: hidden; visibility: hidden; pointer-events: none; box-shadow: none !important; }
+  @media (max-width: 1023px) {
+    .hcn:has(.hcn-mob-header.is-hidden) { box-shadow: none !important; }
+  }
   .hcn-mob-icon {
     display: flex; align-items: center; justify-content: center; background: none; border: none; cursor: pointer;
     padding: 10px; min-width: 44px; min-height: 44px; border-radius: 10px; color: inherit; -webkit-tap-highlight-color: transparent;
   }
   .hcn-mob-icon:active { background: rgba(246, 243, 238, .14); }
 
-  .hcn-chips { display: flex; flex-wrap: wrap; gap: 8px; overflow: hidden; padding: 2px 0; }
+  .hcn-chips {
+    display: flex; flex-wrap: nowrap; gap: 8px; overflow-x: auto; overflow-y: hidden;
+    padding: 2px 2px 4px; scrollbar-width: none; -webkit-overflow-scrolling: touch;
+  }
+  .hcn-chips::-webkit-scrollbar { display: none; }
   .hcn-chip {
-    display: inline-flex; align-items: center; gap: 7px; min-height: 40px; padding: 6px 12px;
+    display: inline-flex; align-items: center; flex: 0 0 auto; white-space: nowrap; gap: 7px;
+    min-height: 40px; padding: 6px 12px;
     border-radius: 22px; border: 1.5px solid #D9D4CB; background: #fff; color: ${C.green};
     font: 600 13px/1.3 ${FONT}; text-align: center; transition: background-color .15s, color .15s, border-color .15s;
   }
@@ -741,7 +748,7 @@ function MobileDrawer({ open, onClose, departments, isCurrent, isAuth, onLogout 
           })}
         </nav>
 
-        <div style={{ borderTop: `1px solid ${C.border}`, background: '#FAF8F4', padding: '10px 16px', flexShrink: 0 }}>
+        {/* <div style={{ borderTop: `1px solid ${C.border}`, background: '#FAF8F4', padding: '10px 16px', flexShrink: 0 }}>
           {[
             { icon: <RiEBike2Line size={15} />, label: 'Fast Delivery Available' },
             { icon: <LuMapPin size={14} />, label: 'Delivering To Your City' },
@@ -752,7 +759,7 @@ function MobileDrawer({ open, onClose, departments, isCurrent, isAuth, onLogout 
               <span style={{ color: C.green, display: 'flex' }} aria-hidden="true">{icon}</span>{label}
             </div>
           ))}
-        </div>
+        </div> */}
       </aside>
     </>
   )
@@ -952,7 +959,7 @@ export default function NavbarOne() {
         className="hcn"
         style={{
           width: '100%', position: 'sticky', top: 0, zIndex: 1000, fontFamily: FONT,
-          boxShadow: scrolled ? '0 2px 20px rgba(30,51,40,.18)' : '0 1px 0 rgba(30,51,40,.12)',
+          boxShadow: mobHidden ? 'none' : scrolled ? '0 2px 20px rgba(30,51,40,.18)' : '0 1px 0 rgba(30,51,40,.12)',
           transition: 'box-shadow .3s',
         }}
       >
@@ -1021,7 +1028,7 @@ export default function NavbarOne() {
         ) : null}
 
         {/* ── Mobile header ── */}
-        <div className={`mob hcn-mob-header${mobHidden ? ' is-hidden' : ''}`} style={{ background: C.green, boxShadow: scrolled ? '0 3px 14px rgba(0,0,0,.12)' : 'none' }}>
+        <div className={`mob hcn-mob-header${mobHidden ? ' is-hidden' : ''}`} style={{ background: C.green, boxShadow: mobHidden ? 'none' : scrolled ? '0 3px 14px rgba(0,0,0,.12)' : 'none' }}>
           <div style={{ height: 76, display: 'flex', alignItems: 'center', padding: '0 6px', gap: 4 }}>
             <button type="button" onClick={() => setDrawerOpen(true)} aria-label="Open menu" aria-expanded={drawerOpen} className="hcn-mob-icon" style={{ color: C.cream }}>
               <LuMenu size={23} strokeWidth={1.75} aria-hidden="true" />
@@ -1053,7 +1060,7 @@ export default function NavbarOne() {
             <SearchBox variant="mob" />
           </div>
 
-          {departments.length > 0 && (
+          {/* {departments.length > 0 && (
             <nav aria-label="Product categories" style={{ padding: '8px 12px 10px', background: C.cream, borderBottom: `1px solid ${C.border}` }}>
               <div className="hcn-chips">
                 {departments.map((dept) => {
@@ -1073,7 +1080,7 @@ export default function NavbarOne() {
                 })}
               </div>
             </nav>
-          )}
+          )} */}
         </div>
       </header>
     </>

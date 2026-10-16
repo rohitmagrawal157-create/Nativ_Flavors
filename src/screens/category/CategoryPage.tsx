@@ -426,7 +426,7 @@ export default function CategoryPage() {
       <SliderOne />
 
       <div className="s-py-100">
-        <div className="w-full pl-6 sm:pl-8 lg:pl-10 pr-4 sm:pr-6 lg:pr-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
 
           <div className="nf-catalog">
             <aside className="nf-filters" data-aos="fade-up" data-aos-delay="100">
@@ -863,9 +863,11 @@ export default function CategoryPage() {
           .nf-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
         @media (max-width: 760px) {
-          .nf-catalog { grid-template-columns: 1fr; }
-          .nf-catalog-bar { align-items: flex-start; }
-          .nf-catalog-tools { flex-direction: column; align-items: flex-start; }
+          .nf-catalog { grid-template-columns: 1fr; gap: 22px; }
+          .nf-filters { padding: 18px 16px 14px; }
+          .nf-catalog-bar { flex-wrap: wrap; gap: 12px; }
+          .nf-catalog-tools { flex-wrap: wrap; gap: 10px; }
+          .nf-grid { gap: 12px; }
         }
       `}</style>
       <FooterOne />
