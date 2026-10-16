@@ -67,7 +67,7 @@ import LayoutOne from '../../components/product/layout-one';
 // ── Constants ─────────────────────────────────────────────────────────────────
 const BRAND_GRADIENT = 'linear-gradient(135deg,#1E3328 0%,#2F4A3A 55%,#4E6B58 100%)';
 const BRAND_SOLID    = '#2F4A3A';
-const WHATSAPP_NUMBER = '919903504754';
+const WHATSAPP_NUMBER = '919766978839';
 const STOCK_QTY_FALLBACK = 7;
 const RATING_SUMMARY     = { average: 4.8, total: 128 };
 const AVATAR_COLORS      = ['#2F4A3A', '#E8314A', '#0891b2'];

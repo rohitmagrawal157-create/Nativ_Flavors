@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link } from '@/lib/router'
-import { API_BASE_URL } from '@/lib/env'
+import educationPhoto from '@/assets/native flavors/education.jpg'
 import { formatDate, loadGuide, loadGuides, type GuideCard, type GuideDetail } from '@/lib/learn'
 
 function slugFromUrl() {
@@ -343,18 +343,10 @@ function GuideIcon() {
   )
 }
 
-function sideImage(raw: unknown) {
-  const value = String(raw ?? '').trim()
-  if (!value) return ''
-  if (/^https?:\/\//i.test(value)) return value
-  return `${API_BASE_URL}${value.startsWith('/') ? value : `/${value}`}`
-}
-
 export function LearnSection({ scope = 'home' }: { scope?: 'home' | 'all' }) {
   const [guides, setGuides] = useState<GuideCard[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
-  const [photo, setPhoto] = useState('')
 
   const load = useCallback(() => {
     let cancelled = false
@@ -379,26 +371,6 @@ export function LearnSection({ scope = 'home' }: { scope?: 'home' | 'all' }) {
   useEffect(() => {
     return load()
   }, [load])
-
-  useEffect(() => {
-    if (scope !== 'home') return
-    let cancelled = false
-    fetch(`${API_BASE_URL}/api/products`, { headers: { Accept: 'application/json' } })
-      .then((res) => res.json())
-      .then((json) => {
-        const rows = Array.isArray(json?.data) ? json.data : []
-        const urls = rows
-          .map((row: { images?: string[] }) => sideImage(row.images?.[0]))
-          .filter(Boolean)
-        if (!cancelled) setPhoto(urls[1] || urls[0] || '')
-      })
-      .catch((err: unknown) => {
-        console.warn('[LearnSection] Side image could not be loaded:', err)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [scope])
 
   const home = scope === 'home'
 
@@ -479,7 +451,7 @@ export function LearnSection({ scope = 'home' }: { scope?: 'home' | 'all' }) {
         </div>
         {home ? (
           <figure className="nf-learn-photo">
-            {photo ? <img src={photo} alt="" /> : null}
+            <img src={educationPhoto} alt="Steps from milk to a jar of ghee" />
           </figure>
         ) : null}
         </div>
@@ -519,13 +491,12 @@ export function LearnSection({ scope = 'home' }: { scope?: 'home' | 'all' }) {
         }
         .nf-learn-photo {
           margin: 0;
-          min-height: 360px;
           border-radius: 16px;
           overflow: hidden;
-          background: #E7EDE8;
+          background: #2A2118;
         }
         .nf-learn-photo img {
-          display: block; width: 100%; height: 100%; min-height: 360px; object-fit: cover;
+          display: block; width: 100%; height: auto; object-fit: contain;
         }
         .nf-learn-top { text-align: center; margin: 0 auto 40px; }
         .nf-learn h2.nf-learn-top-title {
@@ -650,8 +621,8 @@ export function LearnSection({ scope = 'home' }: { scope?: 'home' | 'all' }) {
           .nf-learn-split { grid-template-columns: 1fr; }
           .nf-learn-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
           .nf-learn-split .nf-learn-grid { grid-template-columns: 1fr; }
-          .nf-learn-photo { min-height: 240px; }
-          .nf-learn-photo img { min-height: 240px; }
+          .nf-learn-photo { min-height: 0; }
+          .nf-learn-photo img { min-height: 0; }
         }
         @media (max-width: 767px) {
           .nf-learn { padding: 48px 0; }

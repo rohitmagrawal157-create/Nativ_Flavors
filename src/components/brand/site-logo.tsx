@@ -14,7 +14,7 @@ export default function SiteLogo({ size = 48 }: { size?: number }) {
         border: '1px solid rgba(47,74,58,0.22)',
         flexShrink: 0,
         overflow: 'hidden',
-        padding: Math.max(4, Math.round(size * 0.08)),
+        padding: 4,
       }}
     >
       <img

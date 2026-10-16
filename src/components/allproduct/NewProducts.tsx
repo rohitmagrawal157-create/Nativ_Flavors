@@ -40,43 +40,101 @@ const GRAD_TXT: React.CSSProperties = {
 
 // ─── API shape ───────────────────────────────────────────────────────────────
 interface ApiProduct {
-  product_id:          number
+  product_id?:         number
+  id?:                 number
   name:                string
-  category:            string
-  price:               string
-  original_price:      string
-  discount_percentage: number | null
-  images:              string[]
-  variants:            { variant_id: number; size: string; color: string; stock: string }[]
-  average_rating:      number
-  total_reviews:       number
+  category?:           string
+  price?:              string
+  product_price?:      string
+  original_price?:     string
+  mrp?:                string
+  discount_percentage?: number | string | null
+  images?:             string[]
+  image_url?:          string
+  image?:              string
+  average_rating?:     number
 }
 
 // ─── Map API product → LayoutOne Item ────────────────────────────────────────
 // LayoutOne expects: { id, image, tag, price, name, rating?, originalPrice?, discount? }
 function toItem(p: ApiProduct) {
-  const price    = parseFloat(p.price)      || 0
-  const origP    = parseFloat(p.original_price) || 0
-  const disc     = origP > price && price > 0
+  const id = Number(p.product_id ?? p.id)
+  const name = String(p.name ?? '').trim()
+  if (!Number.isFinite(id) || !name) return null
+  const priceRaw = p.price ?? p.product_price ?? '0'
+  const origRaw = p.original_price ?? p.mrp ?? ''
+  const price = parseFloat(priceRaw) || 0
+  const origP = parseFloat(origRaw) || 0
+  const disc = origP > price && price > 0
     ? Math.round(((origP - price) / origP) * 100)
-    : (p.discount_percentage ?? 0)
+    : (Number(p.discount_percentage) || 0)
+  const images = Array.isArray(p.images) ? p.images : []
 
-  // Tag: derive from discount or use a sensible default
   let tag = 'New'
-  if (disc >= 30)      tag = 'Hot Sale'
+  if (disc >= 30) tag = 'Hot Sale'
   else if (disc >= 10) tag = 'Sale'
-  else if (disc > 0)   tag = '10% OFF'
+  else if (disc > 0) tag = '10% OFF'
 
   return {
-    id:            p.product_id,
-    image:         p.images?.[0] ?? '',
+    id,
+    image: images[0] || p.image_url || p.image || '',
+    images: images.length ? images : [p.image_url || p.image || ''].filter(Boolean),
     tag,
-    price:         p.price,
-    name:          p.name,
-    rating:        p.average_rating || 4,
-    originalPrice: origP > price ? p.original_price : undefined,
-    discount:      disc > 0 ? disc : undefined,
+    price: String(priceRaw),
+    name,
+    rating: p.average_rating || 4,
+    originalPrice: origP > price ? String(origRaw) : undefined,
+    discount: disc > 0 ? disc : undefined,
   }
+}
+
+function rowsFrom(json: any): ApiProduct[] {
+  if (Array.isArray(json?.data)) return json.data
+  if (Array.isArray(json)) return json
+  return []
+}
+
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+async function fetchProductList(): Promise<ApiProduct[]> {
+  const headers = { Accept: 'application/json' }
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      const res = await fetch(API_URL, { headers })
+      if (res.ok) {
+        const json = await res.json()
+        const list = rowsFrom(json)
+        if (list.length || json?.status !== false) return list
+      }
+    } catch {
+      // The shop list sometimes drops the connection. Try again, then the category lists.
+    }
+    if (attempt < 2) await wait(350 * (attempt + 1))
+  }
+
+  const categoryRes = await fetch(`${API_BASE_URL}/api/categories`, { headers })
+  if (!categoryRes.ok) return []
+  const categoryJson = await categoryRes.json()
+  const ids = rowsFrom(categoryJson).map((row) => row.id).filter(Boolean)
+  const groups = await Promise.all(ids.map(async (id) => {
+    const res = await fetch(`${API_BASE_URL}/api/categories/${id}/products`, { headers })
+    if (!res.ok) return []
+    const json = await res.json()
+    return rowsFrom(json)
+  }))
+
+  const seen = new Set<number>()
+  const merged: ApiProduct[] = []
+  for (const row of groups.flat()) {
+    const id = Number(row.product_id ?? row.id)
+    if (!Number.isFinite(id) || seen.has(id)) continue
+    seen.add(id)
+    merged.push(row)
+  }
+  return merged
 }
 
 // ─── Pick N random items ──────────────────────────────────────────────────────
@@ -133,15 +191,13 @@ export default function NewProducts() {
     setLoading(true)
     setError(null)
     try {
-      const res  = await fetch(API_URL, { headers: { Accept: 'application/json' } })
-      if (!res.ok) throw new Error(`HTTP ${res.status}`)
-      const json = await res.json()
-      const list: ApiProduct[] = Array.isArray(json?.data) ? json.data
-        : Array.isArray(json) ? json : []
-      // Pick 4 random products, mapped to LayoutOne shape
-      setItems(pickRandom(list, 4).map(toItem))
-    } catch (e: any) {
-      setError(e?.message ?? 'Failed to load products.')
+      const list = await fetchProductList()
+      const next = pickRandom(list, 4).map(toItem).filter(Boolean)
+      setItems(next)
+      if (!next.length) setError('empty')
+    } catch {
+      setItems([])
+      setError('empty')
     } finally {
       setLoading(false)
     }
@@ -174,7 +230,7 @@ export default function NewProducts() {
             borderRadius: 10, color: '#dc2626', fontSize: 14,
             fontFamily: "'DM Sans', sans-serif",
           }}>
-            ⚠ {error}
+            Products are taking a moment. Please try again.
             <br />
             <button
               onClick={fetchProducts}

@@ -174,8 +174,8 @@ export default function Register() {
           <img src={bg} alt="register" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg,rgba(37,99,235,0.72) 0%,rgba(14,14,20,0.82) 100%)' }} />
           <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '56px 48px' }}>
-            <div style={{ backgroundImage: 'linear-gradient(90deg,#fff,rgba(255,255,255,0.7))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', fontSize: 28, fontWeight: 800, letterSpacing: -0.5, lineHeight: 1 }}>Infinity</div>
-            <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', marginTop: 4, marginBottom: 32 }}>printing &amp; signage</div>
+            <div style={{ backgroundImage: 'linear-gradient(90deg,#fff,rgba(255,255,255,0.7))', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', fontSize: 28, fontWeight: 800, letterSpacing: -0.5, lineHeight: 1 }}>Native Flavours</div>
+            <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', marginTop: 4, marginBottom: 32 }}>organic homemade traditions</div>
             <h3 style={{ color: '#fff', fontSize: 26, fontWeight: 700, lineHeight: 1.3, margin: '0 0 12px' }}>Join thousands of<br />happy customers</h3>
             <p style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, lineHeight: 1.7, margin: 0, maxWidth: 300 }}>Create your account to access exclusive deals, track orders, and personalise your design experience.</p>
             <div style={{ marginTop: 24, display: 'grid', gap: 10 }}>

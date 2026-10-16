@@ -1,6 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState, type MouseEvent } from 'react'
+import { isWishlisted, toggleWishlist } from '@/api/wishlist.api'
+import ProductHoverPhotos from '@/components/product/hover-photos'
 import { API_BASE_URL } from '@/lib/env'
 import { CLAY_FOREST, namedCategoryTone } from '@/lib/brand'
 import { Link } from '@/lib/router'
@@ -181,12 +183,190 @@ export async function loadGroupProducts(groupId: string): Promise<ShopSku[]> {
   return asRows(json).filter(isActive).map(skuFrom).filter((sku) => sku.name)
 }
 
-function countLabel(count: number) {
-  return count === 1 ? '1 product' : `${count} products`
+const TREND_LIMIT = 8
+
+type TrendProduct = {
+  id: string
+  name: string
+  category: string
+  imageUrl: string
+  images: string[]
+  price: string
+  compareAt: string
+  off: string
+  sale: string
+}
+
+function rupee(value: string) {
+  const amount = Number(value)
+  if (!Number.isFinite(amount) || amount <= 0) return ''
+  return `₹${amount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
+}
+
+function categoryName(row: Row) {
+  const category = row.category
+  if (category && typeof category === 'object') return textFrom(category as Row, ['name', 'title'])
+  return textFrom(row, ['category', 'category_name'])
+}
+
+function galleryFrom(row: Row) {
+  const list: string[] = []
+  const push = (raw: unknown) => {
+    const url = mediaUrl(typeof raw === 'string' ? raw : String(raw ?? ''))
+    if (url && !list.includes(url)) list.push(url)
+  }
+  if (Array.isArray(row.images)) row.images.forEach(push)
+  push(textFrom(row, ['image', 'image_url', 'product_image']))
+  return list
+}
+
+function trendFrom(row: Row): TrendProduct | null {
+  const id = String(row.product_id ?? row.id ?? '')
+  const name = textFrom(row, ['name', 'title'])
+  if (!id || !name) return null
+  const priceRaw = Number(textFrom(row, ['price', 'sale_price', 'product_price']))
+  const compareRaw = Number(textFrom(row, ['original_price', 'mrp']))
+  const price = rupee(String(priceRaw))
+  const compare = rupee(String(compareRaw))
+  const images = galleryFrom(row)
+  const imageUrl = images[0] ?? ''
+  const percent = compareRaw > priceRaw && priceRaw > 0
+    ? Math.round(((compareRaw - priceRaw) / compareRaw) * 100)
+    : 0
+  return {
+    id,
+    name,
+    category: categoryName(row),
+    imageUrl,
+    images,
+    price,
+    compareAt: compare && compare !== price ? compare : '',
+    off: percent > 0 ? `${percent}% off` : '',
+    sale: percent > 0 ? `${percent}%` : '',
+  }
+}
+
+function prefer(current: string, next: string) {
+  return current || next
+}
+
+async function loadTrendProducts(): Promise<TrendProduct[]> {
+  const headers = { Accept: 'application/json' }
+  const [productRes, categoryRes] = await Promise.all([
+    fetch(`${API_BASE_URL}/api/products`, { headers }),
+    fetch(`${API_BASE_URL}/api/categories`, { headers }),
+  ])
+  const productJson = productRes.ok ? await productRes.json() : { data: [] }
+  if (!productRes.ok && !categoryRes.ok) throw new Error(`HTTP ${productRes.status}`)
+
+  const categoryJson = categoryRes.ok ? await categoryRes.json() : { data: [] }
+  const categoryIds = asRows(categoryJson).map((row) => String(row.id ?? '')).filter(Boolean)
+  const grouped = await Promise.all(categoryIds.map(async (id) => {
+    const res = await fetch(`${API_BASE_URL}/api/categories/${id}/products`, { headers })
+    if (!res.ok) return []
+    const json = await res.json()
+    return asRows(json)
+  }))
+
+  const merged = new Map<string, TrendProduct>()
+  const add = (row: Row) => {
+    if (!isActive(row)) return
+    const item = trendFrom(row)
+    if (!item) return
+    const prev = merged.get(item.id)
+    if (!prev) {
+      merged.set(item.id, item)
+      return
+    }
+    merged.set(item.id, {
+      id: item.id,
+      name: prefer(prev.name, item.name),
+      category: prefer(prev.category, item.category),
+      imageUrl: prefer(prev.imageUrl, item.imageUrl),
+      images: [...new Set([...prev.images, ...item.images])],
+      price: prefer(prev.price, item.price),
+      compareAt: prefer(prev.compareAt, item.compareAt),
+      off: prefer(prev.off, item.off),
+      sale: prefer(prev.sale, item.sale),
+    })
+  }
+
+  for (const row of asRows(productJson)) add(row)
+  for (const row of grouped.flat()) add(row)
+  return [...merged.values()].slice(0, TREND_LIMIT)
+}
+
+function TrendCard({ product }: { product: TrendProduct }) {
+  const productId = Number(product.id)
+  const [wished, setWished] = useState(false)
+  const accent = namedCategoryTone(product.category)?.solid ?? CLAY_FOREST
+
+  useEffect(() => {
+    const sync = () => setWished(Number.isFinite(productId) && isWishlisted(productId))
+    sync()
+    window.addEventListener('wishlist:changed', sync)
+    return () => window.removeEventListener('wishlist:changed', sync)
+  }, [productId])
+
+  const onWish = async (event: MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+    event.stopPropagation()
+    if (!Number.isFinite(productId)) return
+    try {
+      await toggleWishlist(productId)
+      setWished(isWishlisted(productId))
+    } catch {
+      setWished(isWishlisted(productId))
+    }
+  }
+
+  return (
+    <article className="nf-cats-card" style={{ ['--accent' as string]: accent }}>
+      <div className="nf-cats-photo">
+        {product.sale ? <span className="nf-cats-sale">Sale {product.sale}</span> : null}
+        <button
+          type="button"
+          className={`nf-cats-wish${wished ? ' is-on' : ''}`}
+          aria-label={wished ? 'Remove from wishlist' : 'Add to wishlist'}
+          aria-pressed={wished}
+          onClick={onWish}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M12 20.5s-6.7-4.2-9.2-8.2C1.2 9.8 2.2 6.4 5.4 5.4c1.8-.6 3.6.1 4.7 1.5L12 8.6l1.9-1.7c1.1-1.4 2.9-2.1 4.7-1.5 3.2 1 4.2 4.4 2.6 6.9-2.5 4-9.2 8.2-9.2 8.2z"
+              fill={wished ? '#C7922E' : 'none'}
+              stroke={wished ? '#C7922E' : '#2F4A3A'}
+              strokeWidth="1.75"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+        <Link to={`/product-details/${product.id}`} className="nf-cats-photo-link" tabIndex={-1} aria-hidden="true">
+          <ProductHoverPhotos images={product.images} alt="" />
+        </Link>
+      </div>
+      <Link to={`/product-details/${product.id}`} className="nf-cats-body" aria-label={product.name}>
+        {product.category ? (
+          <span className="nf-cats-pill" style={{ color: accent }}>
+            {product.category}
+          </span>
+        ) : null}
+        <span className="nf-cats-name">{product.name}</span>
+        {product.price ? (
+          <span className="nf-cats-price">
+            {product.price}
+            {product.compareAt ? <span className="nf-cats-mrp">{product.compareAt}</span> : null}
+            {product.off ? <span className="nf-cats-off">{product.off}</span> : null}
+          </span>
+        ) : null}
+        <span className="nf-cats-btn">View product</span>
+      </Link>
+    </article>
+  )
 }
 
 export default function TrendsYouMayLike() {
-  const [categories, setCategories] = useState<ShopCategory[]>([])
+  const [products, setProducts] = useState<TrendProduct[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
@@ -194,12 +374,12 @@ export default function TrendsYouMayLike() {
     let cancelled = false
     setLoading(true)
     setError(false)
-    loadShopCategories()
+    loadTrendProducts()
       .then((data) => {
-        if (!cancelled) setCategories(data)
+        if (!cancelled) setProducts(data)
       })
       .catch((err: unknown) => {
-        console.error('[TrendsYouMayLike] Failed to load categories:', err)
+        console.warn('[TrendsYouMayLike] Products could not be loaded:', err)
         if (!cancelled) setError(true)
       })
       .finally(() => {
@@ -219,13 +399,13 @@ export default function TrendsYouMayLike() {
       <div className="nf-cats-wrap">
         <header className="nf-cats-head">
           <p className="nf-cats-label">OUR PRODUCTS</p>
-          <h2 id="nf-cats-title">Shop by category</h2>
-          <p className="nf-cats-sub">Simple, honest food, grouped so you can find it easily.</p>
+          <h2 id="nf-cats-title">Trends you may like</h2>
+          <p className="nf-cats-sub">Eight foods from the shop, four in each row.</p>
         </header>
 
         {loading ? (
           <div className="nf-cats-grid" aria-hidden="true">
-            {Array.from({ length: 4 }, (_, index) => (
+            {Array.from({ length: TREND_LIMIT }, (_, index) => (
               <div className="nf-cats-card nf-cats-skel" key={index} />
             ))}
           </div>
@@ -233,7 +413,7 @@ export default function TrendsYouMayLike() {
 
         {!loading && error ? (
           <div className="nf-cats-state" role="alert">
-            <p>Categories could not be loaded</p>
+            <p>Products could not be loaded</p>
             <button type="button" className="nf-cats-retry" onClick={load}>Try again</button>
           </div>
         ) : null}
@@ -241,50 +421,9 @@ export default function TrendsYouMayLike() {
         {!loading && !error ? (
           <>
             <div className="nf-cats-grid">
-              {categories.map((category) => {
-                const open = category.count > 0
-                const body = (
-                  <>
-                    <span className="nf-cats-line" />
-                    <span className="nf-cats-photo">
-                      {category.imageUrl ? (
-                        <img src={category.imageUrl} alt="" />
-                      ) : null}
-                    </span>
-                    <span className="nf-cats-pill" style={{ color: category.accent, background: `${category.accent}22` }}>
-                      {open ? countLabel(category.count) : 'Coming soon'}
-                    </span>
-                    <span className="nf-cats-name">{category.name}</span>
-                    {category.description ? (
-                      <span className="nf-cats-desc">{category.description}</span>
-                    ) : null}
-                    {open ? <span className="nf-cats-go">Explore →</span> : null}
-                  </>
-                )
-                if (!open) {
-                  return (
-                    <article
-                      key={category.id || category.slug}
-                      className="nf-cats-card is-soon"
-                      style={{ ['--accent' as string]: category.accent }}
-                      aria-disabled="true"
-                    >
-                      {body}
-                    </article>
-                  )
-                }
-                return (
-                  <Link
-                    key={category.id || category.slug}
-                    to={categoryHref(category.slug)}
-                    className="nf-cats-card"
-                    style={{ ['--accent' as string]: category.accent }}
-                    aria-label={`${category.name}, ${countLabel(category.count)}`}
-                  >
-                    {body}
-                  </Link>
-                )
-              })}
+              {products.map((product) => (
+                <TrendCard key={product.id} product={product} />
+              ))}
             </div>
             <p className="nf-cats-all-wrap">
               <Link to="/products" className="nf-cats-all">View all products →</Link>
@@ -340,9 +479,9 @@ export default function TrendsYouMayLike() {
           display: flex;
           flex-direction: column;
           height: 100%;
-          padding: 20px;
-          border: 1px solid transparent;
-          border-radius: 16px;
+          padding: 0;
+          border: 1px solid rgba(47, 74, 58, 0.14);
+          border-radius: 12px;
           background: #FFFFFF;
           box-shadow: 0 8px 22px rgba(47, 74, 58, 0.06);
           color: inherit;
@@ -350,54 +489,127 @@ export default function TrendsYouMayLike() {
           overflow: hidden;
           transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
         }
-        a.nf-cats-card:hover {
+        .nf-cats-card:hover {
           transform: translateY(-4px);
-          border-color: var(--accent);
+          border-color: #2F4A3A;
           box-shadow: 0 16px 32px rgba(47, 74, 58, 0.12);
         }
-        a.nf-cats-card:focus-visible {
-          outline: 3px solid #C7922E;
-          outline-offset: 3px;
-        }
-        .nf-cats-line {
-          display: block;
-          height: 4px;
-          margin: -20px -20px 16px;
-          background: var(--accent);
-        }
         .nf-cats-photo {
-          display: block;
-          aspect-ratio: 4 / 3;
-          border-radius: 10px;
+          position: relative;
+          aspect-ratio: 4 / 5;
           overflow: hidden;
           background: #F6F3EE;
+        }
+        .nf-cats-photo-link {
+          position: absolute;
+          inset: 0;
+          display: block;
+          color: inherit;
+          text-decoration: none;
+        }
+        .nf-cats-sale {
+          position: absolute;
+          top: 10px;
+          left: 10px;
+          z-index: 2;
+          padding: 5px 9px;
+          border-radius: 999px;
+          background: #2F4A3A;
+          color: #F6F3EE;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.04em;
+          line-height: 1.2;
+          text-transform: uppercase;
+        }
+        .nf-cats-wish {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          z-index: 2;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 36px;
+          height: 36px;
+          padding: 0;
+          border: 0;
+          border-radius: 50%;
+          background: #FFFFFF;
+          box-shadow: 0 2px 8px rgba(47, 74, 58, 0.16);
+          cursor: pointer;
+        }
+        .nf-cats-wish:focus-visible,
+        .nf-cats-body:focus-visible {
+          outline: 3px solid #C7922E;
+          outline-offset: 3px;
         }
         .nf-cats-photo img {
           display: block;
           width: 100%;
           height: 100%;
           object-fit: cover;
-          transition: transform 0.3s ease;
+          object-position: center;
         }
-        a.nf-cats-card:hover .nf-cats-photo img { transform: scale(1.03); }
+        .nf-cats-body {
+          display: flex;
+          flex-direction: column;
+          flex: 1;
+          gap: 8px;
+          padding: 14px 14px 16px;
+          color: inherit;
+          text-decoration: none;
+        }
         .nf-cats-pill {
           align-self: flex-start;
-          margin-top: 14px;
-          padding: 4px 10px;
-          border-radius: 99px;
-          background: color-mix(in srgb, var(--accent) 16%, #FFFFFF);
-          font-size: 13px;
-          font-weight: 500;
+          color: #6E736F;
+          font-size: 12px;
+          font-weight: 600;
+          letter-spacing: 0.04em;
           line-height: 1.4;
+          text-transform: uppercase;
         }
         .nf-cats-name {
           display: block;
-          margin-top: 12px;
+          min-height: 2.6em;
           color: #2F4A3A;
-          font-family: 'Playfair Display', Georgia, serif;
-          font-size: 22px;
+          font-size: 15px;
           font-weight: 600;
           line-height: 1.3;
+        }
+        .nf-cats-price {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: baseline;
+          gap: 8px;
+          margin-top: auto;
+          color: #2F4A3A;
+          font-size: 16px;
+          font-weight: 700;
+        }
+        .nf-cats-mrp {
+          color: #6E736F;
+          font-size: 13px;
+          font-weight: 500;
+          text-decoration: line-through;
+        }
+        .nf-cats-off {
+          color: #5A4634;
+          font-size: 12px;
+          font-weight: 600;
+        }
+        .nf-cats-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-height: 44px;
+          margin-top: 4px;
+          border-radius: 12px;
+          background: #2F4A3A;
+          color: #F6F3EE;
+          font-size: 14px;
+          font-weight: 600;
+          letter-spacing: 0.02em;
         }
         .nf-cats-desc {
           display: -webkit-box;
@@ -463,10 +675,7 @@ export default function TrendsYouMayLike() {
           background: #E6E3DE;
           box-shadow: none;
         }
-        @media (min-width: 1024px) {
-          .nf-cats-name { font-size: 24px; }
-        }
-        @media (max-width: 1023px) {
+        @media (max-width: 700px) {
           .nf-cats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
         @media (max-width: 767px) {
@@ -479,8 +688,7 @@ export default function TrendsYouMayLike() {
         }
         @media (prefers-reduced-motion: reduce) {
           .nf-cats-card, .nf-cats-photo img { transition: none; }
-          a.nf-cats-card:hover { transform: none; }
-          a.nf-cats-card:hover .nf-cats-photo img { transform: none; }
+          .nf-cats-card:hover { transform: none; }
         }
       `}</style>
     </section>

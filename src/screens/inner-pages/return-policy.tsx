@@ -78,7 +78,7 @@ export default function ReturnPolicy() {
               <div className="prose prose-lg max-w-none dark:prose-invert prose-p:text-gray-600 dark:prose-p:text-gray-300 prose-headings:text-gray-900 dark:prose-headings:text-white prose-strong:text-primary dark:prose-strong:text-primary prose-a:text-primary prose-a:no-underline hover:prose-a:underline">
 
                 <p className="text-base leading-relaxed">
-                  At <strong>Infinity</strong>, we take pride in the quality of our products. However, if you are not completely satisfied with your purchase, we are here to help. Please read our return and refund policy carefully.
+                  At <strong>Native Flavours</strong>, we take pride in the quality of our products. However, if you are not completely satisfied with your purchase, we are here to help. Please read our return and refund policy carefully.
                 </p>
 
                 <hr className="my-6 border-gray-200 dark:border-gray-700" />
@@ -130,7 +130,7 @@ export default function ReturnPolicy() {
                     <h2 className="text-xl font-semibold text-title dark:text-white">4. How to Initiate a Return</h2>
                   </div>
                   <ol className="list-decimal pl-6 space-y-2 mb-4">
-                    <li>Contact our support team at <a href="mailto:returns@infinity.com" className="text-primary hover:underline">returns@infinity.com</a> with your order number and reason for return.</li>
+                    <li>Contact our support team at <a href="mailto:customers@nativeflavoursindia.com" className="text-primary hover:underline">customers@nativeflavoursindia.com</a> with your order number and reason for return.</li>
                     <li>We will provide you with a Return Authorization (RA) number and shipping instructions.</li>
                     <li>Pack the item securely in its original packaging and include the RA number.</li>
                     <li>Ship the item to the address provided. Return shipping costs are the responsibility of the customer unless the item is defective or we made an error.</li>
@@ -175,9 +175,9 @@ export default function ReturnPolicy() {
                       If you have any questions about our return policy, please contact our support team:
                     </p>
                     <ul className="mt-3 space-y-1">
-                      <li>📧 Email: <a href="mailto:support@infinity.com" className="text-primary hover:underline">support@infinity.com</a></li>
-                      <li>📞 Phone: <a href="tel:+919903504754" className="text-primary hover:underline">+91 99035 04754</a></li>
-                      <li>💬 WhatsApp: <a href="https://wa.me/919903504754" className="text-primary hover:underline">Click to chat</a></li>
+                      <li>📧 Email: <a href="mailto:customers@nativeflavoursindia.com" className="text-primary hover:underline">customers@nativeflavoursindia.com</a></li>
+                      <li>📞 Phone: <a href="tel:+919766978839" className="text-primary hover:underline">+91 97669 78839</a></li>
+                      <li>💬 WhatsApp: <a href="https://wa.me/919766978839" className="text-primary hover:underline">Click to chat</a></li>
                     </ul>
                   </div>
                 </div>

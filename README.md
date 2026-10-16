@@ -1,6 +1,6 @@
-# Infinity HomeDecor
+# Native Flavours
 
-Next.js storefront for Infinity HomeDecor: frames, canvas, temple art, murals, wallpapers, blinds, neon, and backlit LED.
+Next.js storefront for Native Flavours: ghee, atta, honey, jaggery, pickles, and other foods from the shop.
 
 ## Scripts
 

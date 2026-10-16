@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { Link }      from '@/lib/router';
 
 import bg   from '../../assets/img/shortcode/breadcumb.jpg';
+import farm from '../../assets/img/KrishiX_App-01.jpg';
 import bg4  from '../../assets/img/about/video-bg.jpg';
 import about from '../../assets/img/svg/about.svg';
 import like  from '../../assets/img/svg/like.svg';
@@ -38,19 +39,19 @@ interface Feature { image: string; title: string; desc: string }
 
 // ── Static data ───────────────────────────────────────────────────────────────
 const SERVICES = [
-  { icon: '🖨️', label: 'Digital Printing'      },
-  { icon: '🪟', label: 'Signage & Displays'    },
-  { icon: '🏷️', label: 'Branding & Packaging'  },
-  { icon: '📐', label: 'Large Format Printing'  },
-  { icon: '🎨', label: 'Graphic Design'         },
-  { icon: '🏗️', label: 'Installation Services' },
+  { icon: '🫙', label: 'Desi Pure Ghee' },
+  { icon: '🌾', label: 'Atta & Grains' },
+  { icon: '🍯', label: 'Natural Sweeteners' },
+  { icon: '🥭', label: 'Pickles' },
+  { icon: '🥣', label: 'Morning Snacks' },
+  { icon: '🫘', label: 'Pulses' },
 ];
 
 const TEAM_STATS = [
-  { value: '15+',  label: 'Years Experience'    },
-  { value: '200+', label: 'Projects Completed'  },
-  { value: '50+',  label: 'Expert Specialists'  },
-  { value: '98%',  label: 'Client Satisfaction' },
+  { value: 'Ghee', label: 'Dairy' },
+  { value: 'Atta', label: 'Grains' },
+  { value: 'Pickles', label: 'Pantry' },
+  { value: 'Pulses', label: 'Kitchen' },
 ];
 
 const SUCCESS_KEYS = [
@@ -130,16 +131,16 @@ export default function About() {
             <div className="lg:bg-[#F8F8F9] lg:dark:bg-dark-secondary lg:pr-10 2xl:pr-0 relative">
               <img
                 className="object-cover w-full h-full min-h-[400px]"
-                src="https://theinfinityprint.com/wp-content/uploads/2024/05/canvas-frame-1-1.jpg"
-                alt="Infinity Print and Signage"
+                src={farm}
+                alt="Native Flavours"
               />
               {/* Floating badge */}
               <div
                 className="absolute bottom-6 left-6 text-white px-5 py-3 rounded-xl shadow-lg hidden md:block"
                 style={{ background: BRAND }}
               >
-                <div className="text-2xl font-bold leading-none">15+</div>
-                <div className="text-xs font-medium mt-1 opacity-90 tracking-wide">Years of Excellence</div>
+                <div className="text-sm font-bold leading-none">Native Flavours</div>
+                <div className="text-xs font-medium mt-1 opacity-90 tracking-wide">Organic homemade traditions</div>
               </div>
             </div>
 
@@ -154,20 +155,16 @@ export default function About() {
                 </p>
 
                 <h3 className="font-medium leading-tight mt-2 text-2xl md:text-3xl">
-                  Infinity Print &amp; Signage Industries
+                  Native Flavours
                 </h3>
 
                 <p className="mt-4 text-base sm:text-lg leading-relaxed">
-                  At <strong>Infinity Print and Signage Industries</strong>, we are a dynamic and innovative
-                  Printing and Signage company committed to providing exceptional service to our valued clients.
-                  With a strong foundation built on years of experience, we have established ourselves as a
-                  trusted name in the industry.
+                  At <strong>Native Flavours</strong>, the shop lists ghee, atta, pulses, pickles, snacks, and natural sweeteners.
+                  Each product uses the name, price, and photo returned by the shop.
                 </p>
 
                 <p className="mt-3 text-base sm:text-lg leading-relaxed">
-                  We deliver comprehensive print and signage solutions — all under one roof. From concept to
-                  installation, our expert team ensures every project reflects your brand's identity with
-                  precision, quality, and creativity.
+                  Write to customers@nativeflavoursindia.com or call +91 97669 78839.
                 </p>
 
                 {/* Services grid */}
@@ -233,9 +230,7 @@ export default function About() {
                   experiences, allowing us to tackle complex challenges from multiple perspectives.
                 </p>
                 <p className="text-base leading-relaxed">
-                  From design specialists and print technicians to project managers and installation
-                  experts — every member of our team is dedicated to delivering outstanding results
-                  that speak for themselves.
+                  The foods on this site are the ones listed in the shop, each with its own name, price, and photo.
                 </p>
 
                 {/* Stats */}

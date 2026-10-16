@@ -114,7 +114,20 @@ export default function SliderOne() {
 
   useEffect(() => {
     let cancelled = false
-    loadSlides()
+    const load = async () => {
+      let lastError: unknown
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        try {
+          const data = await loadSlides()
+          if (data.length) return data
+        } catch (err) {
+          lastError = err
+        }
+        if (attempt < 2) await new Promise((resolve) => setTimeout(resolve, 350 * (attempt + 1)))
+      }
+      throw lastError ?? new Error('No slides')
+    }
+    load()
       .then((data) => {
         if (!cancelled) {
           setSlides(data)
@@ -123,7 +136,7 @@ export default function SliderOne() {
         }
       })
       .catch((err: unknown) => {
-        console.error('[SliderOne] Failed to load sliders:', err)
+        console.warn('[SliderOne] Failed to load sliders:', err)
         if (!cancelled) setError('We could not load the banner. Please refresh the page.')
       })
       .finally(() => {

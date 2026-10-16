@@ -39,7 +39,7 @@ function formatINR(value: unknown): string {
 // ----- Brand Tokens -----
 const BRAND_GRADIENT = 'linear-gradient(135deg,#1E3328 0%,#2F4A3A 55%,#4E6B58 100%)';
 const BRAND_SOLID = '#2F4A3A';
-const WHATSAPP_NUMBER = '919903504754';
+const WHATSAPP_NUMBER = '919766978839';
 
 // ----- Static Data (only symbol changed) -----
 const OFFERS: { info: string; code: string }[] = [

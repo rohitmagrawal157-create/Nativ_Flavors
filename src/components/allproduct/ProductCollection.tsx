@@ -2,6 +2,11 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { API_BASE_URL } from '@/lib/env';
+import step1 from '@/assets/img/Process/step-1.jpeg';
+import step2 from '@/assets/img/Process/step-2.jpeg';
+import step3 from '@/assets/img/Process/step-3.jpeg';
+import step4 from '@/assets/img/Process/step-4.jpeg';
+import step5 from '@/assets/img/Process/step-5.jpeg';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 export interface JourneyStep {
@@ -37,36 +42,36 @@ const DEFAULT_STEPS: JourneyStep[] = [
     id: 1,
     title: 'Milked with care',
     description: 'Milk is collected fresh, by hand, from cows raised on our partner farms.',
-    imageSrc: '',
+    imageSrc: step1,
     imageAlt: 'Fresh milk being collected at the farm',
   },
   {
     id: 2,
     title: 'Set into curd',
     description: 'The milk is gently heated and set into curd overnight in a clay pot, the slow natural way.',
-    imageSrc: '',
+    imageSrc: step2,
     imageAlt: 'Curd setting in a clay pot',
   },
   {
     id: 3,
     title: 'Churned with a wooden bilona',
     description: 'The curd is churned by hand with a wooden churner until the butter separates.',
-    imageSrc: '',
+    imageSrc: step3,
     imageAlt: 'Wooden bilona churning curd',
   },
   {
     id: 4,
     title: 'Slow cooked into ghee',
     description: 'The butter is simmered slowly on a low flame until it turns into golden, fragrant ghee.',
-    imageSrc: '',
+    imageSrc: step4,
     imageAlt: 'Butter slowly cooking into ghee',
   },
   {
     id: 5,
     title: 'Filtered, tested and packed',
     description: 'Once cooled, the ghee is filtered, checked, and sealed in clean jars with a batch label you can trace.',
-    imageSrc: '',
-    imageAlt: 'Ghee being packed into glass jars',
+    imageSrc: step5,
+    imageAlt: 'Ghee packed in a glass jar',
   },
 ];
 
@@ -125,7 +130,7 @@ function Step({
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const [markerBroken, setMarkerBroken] = useState(false);
-  const [imageBroken, setImageBroken] = useState(false);
+  const [failedSrc, setFailedSrc] = useState('');
 
   // Scroll par fade-in
   useEffect(() => {
@@ -167,6 +172,7 @@ function Step({
   }, [index, onActive]);
 
   const showMarkerImg = step.markerSrc && !markerBroken;
+  const imageFailed = Boolean(step.imageSrc) && failedSrc === step.imageSrc;
 
   return (
     <div
@@ -194,20 +200,24 @@ function Step({
       <div className="nf-jr-card">
         <div className="nf-jr-image-box">
           <div className="nf-jr-image">
-            {imageBroken || !step.imageSrc ? (
-              <span className="nf-jr-image-fallback" role="img" aria-label={step.imageAlt || step.title}>
-                <LeafIcon size={42} />
-              </span>
-            ) : (
+            {step.imageSrc && !imageFailed ? (
               <img
+                key={step.imageSrc}
                 src={step.imageSrc}
                 alt={step.imageAlt || step.title}
                 width={240}
                 height={240}
-                loading="lazy"
+                loading="eager"
                 decoding="async"
-                onError={() => setImageBroken(true)}
+                onError={(event) => {
+                  const raw = event.currentTarget.getAttribute('src') || ''
+                  if (raw === step.imageSrc) setFailedSrc(raw)
+                }}
               />
+            ) : (
+              <span className="nf-jr-image-fallback" role="img" aria-label={step.imageAlt || step.title}>
+                {imageFailed ? <LeafIcon size={42} /> : null}
+              </span>
             )}
           </div>
         </div>
@@ -254,62 +264,12 @@ export default function ProcessJourney({
 }: ProcessJourneyProps) {
   const [steps, setSteps] = useState<JourneyStep[]>(stepsProp ?? DEFAULT_STEPS);
   const [active, setActive] = useState(0);
-  const [sideBroken, setSideBroken] = useState<Record<number, boolean>>({});
+  const [failedSide, setFailedSide] = useState('');
   const [headingVisible, setHeadingVisible] = useState(false);
 
   useEffect(() => {
     if (stepsProp) setSteps(stepsProp);
   }, [stepsProp]);
-
-  // Products ki photos se: step ki photo aur left ki photo ALAG-ALAG lagao
-  useEffect(() => {
-    if (stepsProp || apiUrl) return;
-    let cancelled = false;
-
-    fetch(`${API_BASE_URL}/api/products`, { headers: { Accept: 'application/json' } })
-      .then((res) => res.json())
-      .then((json) => {
-        const rows = Array.isArray(json?.data) ? json.data : [];
-        const photos: { src: string; name: string }[] = rows
-          .map((row: { name?: string; title?: string; images?: string[] }) => ({
-            src: mediaUrl(row.images?.[0] || ''),
-            name: row.name || row.title || '',
-          }))
-          .filter((photo: { src: string }) => photo.src)
-          // ek hi photo dobara na aaye
-          .filter(
-            (photo: { src: string }, i: number, all: { src: string }[]) =>
-              all.findIndex((p) => p.src === photo.src) === i
-          );
-
-        if (!photos.length || cancelled) return;
-
-        const n = photos.length;
-        // Left ki photo ka offset: step ki photo se hamesha alag (n >= 2 ho to)
-        const shift = n > DEFAULT_STEPS.length ? DEFAULT_STEPS.length : 1;
-
-        setSteps(
-          DEFAULT_STEPS.map((step, index) => {
-            const own = photos[index % n];
-            const side = photos[(index + shift) % n];
-            return {
-              ...step,
-              imageSrc: own.src,
-              imageAlt: own.name || step.imageAlt,
-              sideImageSrc: side.src,
-              sideImageAlt: side.name || step.title,
-            };
-          })
-        );
-      })
-      .catch((err: unknown) => {
-        console.warn('[ProcessJourney] Step images could not be loaded:', err);
-      });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [stepsProp, apiUrl]);
 
   // API se steps (fail ho to default steps hi dikhte rahenge)
   useEffect(() => {
@@ -337,7 +297,8 @@ export default function ProcessJourney({
 
   const activeIndex = Math.min(active, Math.max(steps.length - 1, 0));
   const current = steps[activeIndex];
-  const sideSrc = current?.imageSrc && !sideBroken[activeIndex] ? current.imageSrc : '';
+  const sideSrc = current?.imageSrc || '';
+  const sideFailed = Boolean(sideSrc) && failedSide === sideSrc;
 
   return (
     <section id={id} className="nf-jr" aria-labelledby="nf-jr-title">
@@ -366,18 +327,22 @@ export default function ProcessJourney({
           </h2>
 
           <div className="nf-jr-side">
-            {sideSrc ? (
+            {sideSrc && !sideFailed ? (
               <img
                 key={sideSrc}
                 className="nf-jr-side-img is-active"
                 src={sideSrc}
                 alt={current?.imageAlt || current?.title || ''}
+                loading="eager"
                 decoding="async"
-                onError={() => setSideBroken((prev) => ({ ...prev, [activeIndex]: true }))}
+                onError={(event) => {
+                  const raw = event.currentTarget.getAttribute('src') || ''
+                  if (raw === sideSrc) setFailedSide(raw)
+                }}
               />
             ) : (
               <span className="nf-jr-side-empty" aria-hidden="true">
-                <LeafIcon size={64} />
+                {sideFailed ? <LeafIcon size={64} /> : null}
               </span>
             )}
           </div>
@@ -418,7 +383,7 @@ export default function ProcessJourney({
           --nf-image-bg: #FFFFFF;
           --nf-image-border: #C7922E;
           /* contain = poori image dikhe (kate nahi). cover = box bhar de (kinaare kat sakte hain) */
-          --nf-img-fit: contain;
+          --nf-img-fit: cover;
 
           background: var(--nf-bg);
           overflow: visible;
@@ -443,7 +408,7 @@ export default function ProcessJourney({
 
         /* Left: heading, vertical photo, then the step text. Stays inside the screen. */
         .nf-jr-left {
-          position: sticky; top: 128px; align-self: start;
+          position: sticky; top: 184px; align-self: start;
           display: flex; flex-direction: column; gap: 14px;
           max-height: calc(100vh - 148px);
         }

@@ -28,6 +28,7 @@ export interface Product {
   name:          string;
   price:         string;    // formatted "₹90"
   image:         string;    // first image URL
+  images?:       string[];
   tag:           string;    // maps to category field from API
   rating?:       number;
   totalReviews?: number;
@@ -117,9 +118,10 @@ export function mapApiProduct(p: any): Product {
   } else {
     rawImg = p.image ?? p.image_url ?? p.product_image ?? p.imageUrl ?? p.thumbnail ?? '';
   }
-  if (!rawImg && Array.isArray(p.media) && p.media.length > 0) {
-    rawImg = p.media[0]?.url ?? p.media[0];
-  }
+  const gallery = Array.isArray(p.images)
+    ? p.images.map((item: unknown) => normalizeImageUrl(item ?? '')).filter(Boolean)
+    : []
+  if (!gallery.length && rawImg) gallery.push(normalizeImageUrl(rawImg ?? ''))
 
   // Category: API confirmed → exact string "Portrait Frames", "Canvas Paintings", etc.
   const tag = String(p.category ?? p.tag_name ?? p.tag ?? p.category_name ?? '');
@@ -132,7 +134,8 @@ export function mapApiProduct(p: any): Product {
     id,
     name:          String(p.name ?? p.title ?? p.product_name ?? ''),
     price:         formatINR(priceRaw),
-    image:         normalizeImageUrl(rawImg ?? ''),
+    image:         normalizeImageUrl(gallery[0] ?? rawImg ?? ''),
+    images:        gallery,
     tag,
     rating:        rating > 0 ? rating : 4,   // default 4★ when no reviews
     totalReviews,

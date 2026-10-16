@@ -2,7 +2,7 @@
 
 import { type FormEvent, useEffect, useRef, useState } from 'react'
 import { useNavigate } from '@/lib/router'
-import { API_BASE_URL } from '@/lib/env'
+import trustPhoto from '@/assets/native flavors/trust.jpg'
 import { loadTrustSettings, lookupBatch, type TrustSettings } from '@/lib/trust'
 
 // ─── Outline icons (single-line style) ──────────────────────────────────────
@@ -107,7 +107,6 @@ export default function TrustSection() {
   const [settingsLoaded, setSettingsLoaded] = useState(false)
   const [batch, setBatch] = useState('')
   const [verify, setVerify] = useState<VerifyState>('idle')
-  const [photo, setPhoto] = useState('')
   const lookupId = useRef(0)
 
   // Settings load (FSSAI number + sample report). Fail ho to page na toote.
@@ -166,30 +165,13 @@ export default function TrustSection() {
 
   const showMessage = verify === 'empty' || verify === 'missing' || verify === 'error'
 
-  useEffect(() => {
-    let cancelled = false
-    fetch(`${API_BASE_URL}/api/products`, { headers: { Accept: 'application/json' } })
-      .then((res) => res.json())
-      .then((json) => {
-        const rows = Array.isArray(json?.data) ? json.data : []
-        const first = rows.find((row: { images?: string[] }) => row.images?.[0]) as { images?: string[] } | undefined
-        if (!cancelled) setPhoto(first?.images?.[0] || '')
-      })
-      .catch((err: unknown) => {
-        console.warn('[TrustSection] Side image could not be loaded:', err)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
   return (
     <section id="trust" className="nf-trust" aria-labelledby="nf-trust-title">
       <div className="nf-trust-wrap">
         <h2 id="nf-trust-title" className="nf-trust-proof-title">Good Food Backed by Proof</h2>
         <div className="nf-trust-split">
           <figure className="nf-trust-photo">
-            {photo ? <img src={photo} alt="" /> : null}
+            <img src={trustPhoto} alt="Hands holding a jar of cow ghee on a festive thali" />
           </figure>
           <div className="nf-trust-copy">
         <p className="nf-trust-lead">Why you can trust what&apos;s on your plate</p>

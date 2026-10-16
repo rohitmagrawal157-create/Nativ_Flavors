@@ -160,9 +160,9 @@ export default function ForgotPassword() {
               backgroundImage: 'linear-gradient(90deg,#fff,rgba(255,255,255,0.7))',
               WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
               backgroundClip: 'text', fontSize: 28, fontWeight: 800, letterSpacing: -0.5, lineHeight: 1,
-            }}>Infinity</div>
+            }}>Native Flavours</div>
             <div style={{ color: 'rgba(255,255,255,0.45)', fontSize: 8, letterSpacing: '0.18em', textTransform: 'uppercase', marginTop: 4, marginBottom: 32 }}>
-              printing &amp; signage
+              organic homemade traditions
             </div>
             <h3 style={{ color: '#fff', fontSize: 26, fontWeight: 700, lineHeight: 1.3, margin: '0 0 12px' }}>
               We've got your<br />back

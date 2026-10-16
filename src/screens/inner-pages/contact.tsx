@@ -47,7 +47,7 @@ const INFO_CARDS = [
       </svg>
     ),
     label: 'Call Us',
-    value: '+91 98765 43210',
+    value: '+91 97669 78839',
   },
   {
     icon: (
@@ -56,15 +56,14 @@ const INFO_CARDS = [
       </svg>
     ),
     label: 'Email Us',
-    value: 'info@infinityprint.in',
+    value: 'customers@nativeflavoursindia.com',
   },
 ];
 
 const SUBJECTS = [
   'General Inquiry',
-  'Print Order Query',
-  'Signage & Branding',
-  'Bulk / Custom Order',
+  'Product Question',
+  'Bulk Order',
   'Payment Problem',
   'Delivery Issue',
   'Partnership',
@@ -128,16 +127,16 @@ export default function Contact() {
                 <img
                   className="w-full h-full object-cover"
                   src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=860&h=580&fit=crop&auto=format"
-                  alt="Infinity Print & Signage office"
+                  alt="Native Flavours"
                 />
                 {/* Gradient overlay text */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                 <div className="absolute bottom-8 left-8 right-8">
                   <p className="text-white font-bold text-xl leading-snug">
-                    India's trusted print & signage partner
+                    Native Flavours
                   </p>
                   <p className="text-white/70 text-sm mt-1">
-                    15+ years delivering quality across Maharashtra and beyond
+                    Ghee, grains, honey, pickles, and other foods from the shop.
                   </p>
                 </div>
               </div>
@@ -244,7 +243,7 @@ export default function Contact() {
                         value={form.phone}
                         onChange={handleChange}
                         className={inputCls}
-                        placeholder="+91 98765 43210"
+                        placeholder="+91 97669 78839"
                       />
                     </div>
 
@@ -304,7 +303,7 @@ export default function Contact() {
 
                     {/* Mobile info cards */}
                     <p className="text-[12px] text-gray-400 lg:hidden">
-                      Or call us: <span style={{ background: BRAND, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', fontWeight: 700 }}>+91 98765 43210</span>
+                      Or call us: <span style={{ background: BRAND, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', fontWeight: 700 }}>+91 97669 78839</span>
                     </p>
                   </div>
                 </form>
@@ -341,7 +340,7 @@ export default function Contact() {
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              title="Infinity Print & Signage location"
+              title="Native Flavours location"
             />
           </div>
         </div>

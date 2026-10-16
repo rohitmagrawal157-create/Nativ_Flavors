@@ -21,6 +21,7 @@
 // ══════════════════════════════════════════════════════════════════════════════
 
 import { apiClient } from "./client";
+import { API_BASE_URL } from '@/lib/env';
 
 // ── Public types ──────────────────────────────────────────────────────────────
 
@@ -28,12 +29,16 @@ export interface CategoryProduct {
   id:             number;
   name:           string;
   image:          string;
+  images?:        string[];
   price:          string;       // e.g. "₹1,299"
   tag:            string;       // category/badge label for card
   rating:         number;       // 1–5
   badge?:         string;       // "NEW" | "HOT" | "SALE"
   originalPrice?: string;       // MRP for strikethrough
   discount?:      number;       // percent off
+  date?:          string;       // shop date, used for date sorting
+  inStock?:       boolean;
+  sizes?:         string[];     // pack sizes listed on the product
 }
 
 export type FetchResult =
@@ -47,6 +52,7 @@ interface RawProduct {
   name:             string;
   image_url?:       string | null;
   image?:           string | null;
+  images?:          Array<string | null> | null;
   // Backend sometimes returns these keys
   product_price?:   string | number | null;
   tag_name?:        string | null;
@@ -58,6 +64,7 @@ interface RawProduct {
   badge?:           string | null;
   tag?:             string | null;
   category?:        { id: number; name: string } | null;
+  date?:            string | null;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -95,17 +102,94 @@ function normalise(raw: RawProduct, fallbackTag = ''): CategoryProduct {
   const mrp       = mrpRaw ? formatRupee(mrpRaw) : undefined;
   const discount  = raw.discount ? Number(raw.discount) : undefined;
 
+  const images = (Array.isArray(raw.images) ? raw.images : [])
+    .map((src) => String(src ?? '').trim())
+    .filter(Boolean)
+  const image = images[0] || raw.image_url || raw.image || ''
+  if (image && !images.includes(image)) images.unshift(image)
+
   return {
     id:            Number(raw.id),
     name:          String(raw.name ?? ''),
-    image:         raw.image_url || raw.image || '',
+    image,
+    images,
     price,
     tag:           raw.tag_name ?? raw.tag ?? raw.category?.name ?? raw.badge ?? fallbackTag,
     rating:        Number(raw.rating ?? 4) || 4,
     badge:         raw.badge ?? undefined,
     originalPrice: mrp,
     discount,
+    date:          String(raw.date ?? '').trim() || undefined,
   };
+}
+
+type CatalogMeta = { images: string[]; date: string; inStock: boolean; sizes: string[] }
+
+function packSizes(row: { name?: unknown; details?: unknown; features?: unknown }): string[] {
+  const copy = `${row.details ?? ''} ${row.features ?? ''}`
+  const net = copy.match(/net\s*weight\s*:\s*([^•\n]+)/i)
+  let source = net ? net[1].split('(')[0] : ''
+  if (!source) {
+    const name = String(row.name ?? '')
+    const named = [...name.matchAll(/(\d+(?:\.\d+)?)\s*(kg|gm|g|ml|l)\b/gi)]
+    if (named.length === 1) source = named[0][0]
+  }
+  const labels: string[] = []
+  for (const match of source.matchAll(/(\d+(?:\.\d+)?)\s*(kg|gm|g|ml|l)\b/gi)) {
+    const amount = String(Number(match[1]))
+    const unit = match[2].toLowerCase() === 'gm' ? 'g' : match[2].toLowerCase()
+    const label = `${amount}${unit}`
+    if (!labels.includes(label)) labels.push(label)
+  }
+  return labels
+}
+
+function listedInStock(row: { stock?: unknown; quantity?: unknown; qty?: unknown; in_stock?: unknown; is_in_stock?: unknown; availability?: unknown; status?: unknown }): boolean {
+  const stock = row.stock ?? row.quantity ?? row.qty
+  if (stock === 0 || stock === '0') return false
+  const flag = row.in_stock ?? row.is_in_stock ?? row.availability
+  if (flag === false || flag === 0 || flag === '0' || flag === 'out_of_stock' || flag === 'out of stock') return false
+  const status = String(row.status ?? '').toLowerCase()
+  return status !== 'out_of_stock' && status !== 'inactive'
+}
+
+async function galleryByProductId(): Promise<Map<number, CatalogMeta>> {
+  const map = new Map<number, CatalogMeta>()
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/products`, { headers: { Accept: 'application/json' } })
+    if (!res.ok) return map
+    const json = await res.json()
+    const rows = Array.isArray(json?.data) ? json.data : []
+    for (const row of rows) {
+      const id = Number(row?.product_id ?? row?.id)
+      const images = (Array.isArray(row?.images) ? row.images : [])
+        .map((src: unknown) => String(src ?? '').trim())
+        .filter(Boolean)
+      const date = String(row?.date ?? '').trim()
+      const sizes = packSizes(row)
+      const inStock = listedInStock(row)
+      if (id > 0 && (images.length || date || sizes.length)) map.set(id, { images, date, inStock, sizes })
+    }
+  } catch {
+    // The category list still shows its own photo when this list is unavailable.
+  }
+  return map
+}
+
+function withGalleries(products: CategoryProduct[], galleries: Map<number, CatalogMeta>): CategoryProduct[] {
+  return products.map((product) => {
+    const extra = galleries.get(product.id)
+    const images = [...new Set([...(product.images ?? []), ...(extra?.images ?? [])].filter(Boolean))]
+    if (product.image && !images.includes(product.image)) images.unshift(product.image)
+    return {
+      ...product,
+      image: images[0] || product.image,
+      images,
+      date: extra?.date || product.date || '',
+      inStock: extra ? extra.inStock : product.inStock !== false,
+      sizes: extra?.sizes?.length ? extra.sizes : (product.sizes ?? []),
+    }
+  })
 }
 
 // ── Public functions ──────────────────────────────────────────────────────────
@@ -129,7 +213,7 @@ export async function getParentProducts(parentId: number): Promise<FetchResult> 
       `/api/categories/${parentId}/all-products`
     );
     const rows     = parseRows(payload);
-    const products = rows.map(r => normalise(r));
+    const products = withGalleries(rows.map(r => normalise(r)), await galleryByProductId());
     console.log(`[CategoryAPI] parent ${parentId} → ${products.length} products`);
     return { ok: true, products };
   } catch (err: any) {
@@ -159,7 +243,7 @@ export async function getChildProducts(subId: number): Promise<FetchResult> {
       `/api/categories/${subId}/products`
     );
     const rows     = parseRows(payload);
-    const products = rows.map(r => normalise(r));
+    const products = withGalleries(rows.map(r => normalise(r)), await galleryByProductId());
     console.log(`[CategoryAPI] child ${subId} → ${products.length} products`);
     return { ok: true, products };
   } catch (err: any) {

@@ -1,6 +1,6 @@
 'use client'
 
-// src/components/product/layout-one.tsx  — Infinity Brand v5.2
+// src/components/product/layout-one.tsx  — Native Flavours
 // =============================================================================
 //  FIXES IN v5.2 (vs v5.1):
 //
@@ -34,6 +34,7 @@ import { LuEye, LuHeart, LuX }          from 'react-icons/lu'
 import { RiShoppingBag2Line }            from 'react-icons/ri'
 import { BsCheckLg }                     from 'react-icons/bs'
 import { Link }                          from '@/lib/router'
+import ProductHoverPhotos                from '@/components/product/hover-photos'
 import { addToCart }                     from '../../api/cart.api'
 import { isWishlisted, isWishlistedAsync, toggleWishlist }  from '../../api/wishlist.api'
 import placeholderImg from '../../assets/img/thumb/shop-card.jpg'
@@ -42,6 +43,7 @@ import placeholderImg from '../../assets/img/thumb/shop-card.jpg'
 interface Item {
   id:             number
   image:          string
+  images?:        string[]
   tag:            string
   price:          string
   name:           string
@@ -512,10 +514,7 @@ export default function LayoutOne({ item }: { item: Item }) {
         <div className="relative overflow-hidden" style={{ aspectRatio: '1/1', borderRadius: '8px 8px 0 0' }}>
 
           <Link to={`/product-details/${item.id}`} className="absolute inset-0 block" style={{ background: B.bgSoft }}>
-            <img src={item.image || placeholderImg} alt={item.name}
-              loading="lazy"
-              onError={(e) => { (e.currentTarget as HTMLImageElement).src = placeholderImg }}
-              className="inf-pi w-full h-full object-cover" />
+            <ProductHoverPhotos images={item.images?.length ? item.images : [item.image || placeholderImg]} alt={item.name} />
           </Link>
 
           {/* Vignette */}

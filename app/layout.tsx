@@ -8,11 +8,11 @@ import SideSocialHandler from '@/components/social/SideSocialHandler'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Infinity HomeDecor',
-    template: '%s · Infinity HomeDecor',
+    default: 'Native Flavours',
+    template: '%s · Native Flavours',
   },
   description:
-    'Infinity HomeDecor — portrait frames, canvas paintings, temple art, wall murals, wallpapers, blinds, neon signs, and backlit LED decor.',
+    'Native Flavours — ghee, atta, honey, jaggery, pickles, and other foods from the shop.',
   icons: {
     icon: [{ url: '/favicon.png', type: 'image/png', sizes: '64x64' }],
     apple: [{ url: '/apple-touch-icon.png', sizes: '180x180' }],

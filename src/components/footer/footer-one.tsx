@@ -5,8 +5,7 @@ import farmBg from '@/assets/img/KrishiX_App-01.jpg'
 
 // src/components/footer/footer-one.tsx
 // =============================================================================
-//  FooterOne — Infinity Print & Signage Industries (PROFESSIONAL EDITION)
-//  Complete brand redesign using the Infinity logo colour system
+//  FooterOne — Native Flavours
 //
 //  BRAND COLOURS:
 //  Clay Forest #2F4A3A, Turmeric #C7922E, River Stone #6E736F, Milk #F6F3EE, Seed Husk #5A4634
@@ -372,8 +371,8 @@ export default function FooterOne() {
 
           <div className="fo-farm-contact">
             <strong>NATIVE FLAVOURS</strong>
-            <p><LuMail size={16} aria-hidden /> <a href="mailto:info@infinity.in">info@infinity.in</a></p>
-            <p><LuPhone size={16} aria-hidden /> <a href="tel:+919903504754">+91 99035 04754</a></p>
+            <p><LuMail size={16} aria-hidden /> <a href="mailto:customers@nativeflavoursindia.com">customers@nativeflavoursindia.com</a></p>
+            <p><LuPhone size={16} aria-hidden /> <a href="tel:+919766978839">+91 97669 78839</a></p>
             <p><LuMapPin size={16} aria-hidden /> Mumbai, Maharashtra, India</p>
           </div>
         </div>

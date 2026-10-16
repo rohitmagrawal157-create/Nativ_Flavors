@@ -2,7 +2,7 @@
 
 // src/screens/shop/ShopV1.tsx
 // ══════════════════════════════════════════════════════════════════════
-//  Shop Layout 01 — Infinity Printing & Signage
+//  Shop Layout 01 — Native Flavours
 //
 //  CATEGORY FILTER FIX (this revision):
 //

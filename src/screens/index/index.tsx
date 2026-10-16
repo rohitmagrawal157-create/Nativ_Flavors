@@ -79,7 +79,7 @@ function Index() {
           <TrustSection />
           <LearnSection />
           {/* <ProductCategorySlider /> */}
-          <NewProducts />
+          {/* <NewProducts /> */}
         </HomeMotion>
 
         {/* ── Why Choose Us ────────────────────────────────────────── */}

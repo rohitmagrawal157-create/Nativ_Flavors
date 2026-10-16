@@ -3,7 +3,7 @@
 
 // src/screens/shop/ShopV3.tsx
 // =============================================================================
-//  ShopV3 — PrintZone Printing & Signage Shop
+//  ShopV3 — Native Flavours
 //  Matches full site theme: #2F4A3A accent, DM Sans + Syne fonts,
 //  printing/signage category data, same layout patterns as CategoryShopPage.
 // =============================================================================
@@ -31,7 +31,7 @@ const ACCENT  = '#2F4A3A'
 const FONT    = "'DM Sans', sans-serif"
 const FONT_H  = "'DM Sans', sans-serif"
 
-// ─── Printing & Signage Category Slider Data ──────────────────────────────────
+// ─── Category slider data ─────────────────────────────────────────────────────
 const CATEGORY_SLIDES = [
   {
     slug:  'uv-flatbed-printing',
@@ -610,7 +610,7 @@ export default function ShopV3() {
             color: ACCENT, background: `${ACCENT}22`,
             border: `1px solid ${ACCENT}44`, padding: '6px 16px', marginBottom: 12,
           }}>
-            Printing & Signage
+            Native Flavours
           </span>
           <h2
             className="text-white font-normal leading-none text-center"
@@ -619,7 +619,7 @@ export default function ShopV3() {
             All Products
           </h2>
           <p className="text-white/60 mt-3" style={{ fontSize: 15 }}>
-            Premium printing and signage solutions for every need
+            Foods from the shop
           </p>
           <ul
             className="flex items-center justify-center gap-[10px] text-sm font-normal text-white/60 mt-4"

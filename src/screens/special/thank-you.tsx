@@ -21,7 +21,7 @@ export default function ThankYou() {
                             <path d="M40 61.5 53.5 75 81 46" stroke="#F6F3EE" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round"/>
                         </svg>
                     </div>
-                    <h3 className="leading-[1.2] mt-4 md:mt-6 text-2xl md:text-[32px] font-bold text-title dark:text-white">For Shopping with Furnixar</h3>
+                    <h3 className="leading-[1.2] mt-4 md:mt-6 text-2xl md:text-[32px] font-bold text-title dark:text-white">For shopping with Native Flavours</h3>
                     <p className="mt-3 text-base sm:text-lg text-paragraph dark:text-white">
                         Please Check your email for Download Invoice . Or <Link to="/" className="text-primary underline">Click here </Link>
                     </p>

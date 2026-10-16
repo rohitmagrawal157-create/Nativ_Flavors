@@ -18,7 +18,7 @@ function PageLoading() {
         letterSpacing: '0.04em',
       }}
     >
-      Loading Infinity HomeDecor…
+      Loading Native Flavours…
     </div>
   )
 }
